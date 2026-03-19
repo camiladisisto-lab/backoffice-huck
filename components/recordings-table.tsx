@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { MoreHorizontal, Search, ChevronLeft, ChevronRight, Eye, CheckCircle, Archive, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Search, ChevronLeft, ChevronRight, Eye, CheckCircle, Archive, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -165,23 +165,6 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                 ))}
               </SelectContent>
             </Select>
-
-            <Select 
-              value={sortBySentiment || 'none'} 
-              onValueChange={(value) => { 
-                setSortBySentiment(value === 'none' ? null : value as 'asc' | 'desc')
-                setPage(1)
-              }}
-            >
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Sentimiento" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin ordenar</SelectItem>
-                <SelectItem value="asc">Sentimiento A-Z</SelectItem>
-                <SelectItem value="desc">Sentimiento Z-A</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
@@ -190,7 +173,22 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[60px]">Sentimiento</TableHead>
+              <TableHead className="w-[60px]">
+                <button
+                  onClick={() => {
+                    if (sortBySentiment === null) setSortBySentiment('asc')
+                    else if (sortBySentiment === 'asc') setSortBySentiment('desc')
+                    else setSortBySentiment(null)
+                    setPage(1)
+                  }}
+                  className="flex items-center gap-1 hover:text-foreground transition-colors"
+                >
+                  Sentimiento
+                  {sortBySentiment === null && <ArrowUpDown className="h-4 w-4 text-muted-foreground" />}
+                  {sortBySentiment === 'asc' && <ArrowUp className="h-4 w-4 text-primary" />}
+                  {sortBySentiment === 'desc' && <ArrowDown className="h-4 w-4 text-primary" />}
+                </button>
+              </TableHead>
               <TableHead>Usuario</TableHead>
               <TableHead className="hidden md:table-cell">Transcripcion</TableHead>
               <TableHead className="hidden lg:table-cell">Habilidades</TableHead>
