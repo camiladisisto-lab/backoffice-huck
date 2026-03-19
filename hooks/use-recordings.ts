@@ -18,14 +18,20 @@ export function useRecordings(params: {
   limit?: number
   status?: string
   search?: string
+  userId?: string
+  skill?: string
+  sortBySentiment?: 'asc' | 'desc' | null
 }) {
-  const { page = 1, limit = 10, status = 'all', search = '' } = params
+  const { page = 1, limit = 10, status = 'all', search = '', userId, skill, sortBySentiment } = params
   
   const searchParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
     ...(status !== 'all' && { status }),
-    ...(search && { search })
+    ...(search && { search }),
+    ...(userId && { userId }),
+    ...(skill && { skill }),
+    ...(sortBySentiment && { sortBySentiment })
   })
 
   const { data, error, isLoading, mutate } = useSWR<RecordingsResponse>(

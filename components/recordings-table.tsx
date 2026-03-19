@@ -65,18 +65,23 @@ const softSkillLabels: Record<string, { label: string; color: string }> = {
   pensamiento_critico: { label: 'Pensamiento Critico', color: 'bg-rose-100 text-rose-700 border-rose-200' }
 }
 
-export function RecordingsTable() {
+export function RecordingsTable({ userId }: { userId?: string } = {}) {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState('all')
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [selectedRecording, setSelectedRecording] = useState<Recording | null>(null)
+  const [skillFilter, setSkillFilter] = useState('all')
+  const [sortBySentiment, setSortBySentiment] = useState<'asc' | 'desc' | null>(null)
 
   const { recordings, pagination, isLoading, mutate } = useRecordings({
     page,
     limit: 10,
     status,
-    search
+    search,
+    userId,
+    skill: skillFilter !== 'all' ? skillFilter : undefined,
+    sortBySentiment
   })
 
   const handleSearch = (e: React.FormEvent) => {
@@ -121,31 +126,64 @@ export function RecordingsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1 max-w-md">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por usuario o transcripción..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Button type="submit" variant="secondary">Buscar</Button>
-        </form>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <form onSubmit={handleSearch} className="flex gap-2 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por usuario o transcripcion..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button type="submit" variant="secondary">Buscar</Button>
+          </form>
 
-        <Select value={status} onValueChange={(value) => { setStatus(value); setPage(1) }}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filtrar por estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            <SelectItem value="pending">Pendiente</SelectItem>
-            <SelectItem value="reviewed">Revisado</SelectItem>
-            <SelectItem value="archived">Archivado</SelectItem>
-          </SelectContent>
-        </Select>
+          <div className="flex gap-2">
+            <Select value={status} onValueChange={(value) => { setStatus(value); setPage(1) }}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="pending">Pendiente</SelectItem>
+                <SelectItem value="reviewed">Revisado</SelectItem>
+                <SelectItem value="archived">Archivado</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={skillFilter} onValueChange={(value) => { setSkillFilter(value); setPage(1) }}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Habilidad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las habilidades</SelectItem>
+                {Object.entries(softSkillLabels).map(([key, { label }]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select 
+              value={sortBySentiment || 'none'} 
+              onValueChange={(value) => { 
+                setSortBySentiment(value === 'none' ? null : value as 'asc' | 'desc')
+                setPage(1)
+              }}
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Sentimiento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin ordenar</SelectItem>
+                <SelectItem value="asc">Sentimiento A-Z</SelectItem>
+                <SelectItem value="desc">Sentimiento Z-A</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-white shadow-sm">

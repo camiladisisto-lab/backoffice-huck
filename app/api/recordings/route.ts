@@ -8,6 +8,9 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const status = searchParams.get('status')
   const search = searchParams.get('search')
+  const userId = searchParams.get('userId')
+  const skill = searchParams.get('skill')
+  const sortBySentiment = searchParams.get('sortBySentiment')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '10')
   const offset = (page - 1) * limit
@@ -15,8 +18,14 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('recordings')
     .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+
+  // Apply sorting
+  if (sortBySentiment) {
+    query = query.order('sentiment', { ascending: sortBySentiment === 'asc' })
+  }
+  query = query.order('created_at', { ascending: false })
+  
+  query = query.range(offset, offset + limit - 1)
 
   if (status && status !== 'all') {
     query = query.eq('status', status)
@@ -24,6 +33,14 @@ export async function GET(request: NextRequest) {
 
   if (search) {
     query = query.or(`user_identifier.ilike.%${search}%,transcription.ilike.%${search}%`)
+  }
+
+  if (userId) {
+    query = query.eq('user_identifier', userId)
+  }
+
+  if (skill) {
+    query = query.contains('soft_skills', [skill])
   }
 
   const { data, error, count } = await query
