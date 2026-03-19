@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SoftSkillsRadar } from '@/components/soft-skills-radar'
 
 const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
   positive: { emoji: '😊', label: 'Positivo' },
@@ -239,6 +240,9 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
         )}
+
+        {/* Soft Skills Radar Chart */}
+        <SoftSkillsRadar />
 
         {/* AI Report Section */}
         <div className="rounded-2xl bg-white border border-border shadow-sm overflow-hidden">
