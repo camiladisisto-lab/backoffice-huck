@@ -90,29 +90,15 @@ export async function POST(
   try {
     const result = await generateText({
       model: anthropic('claude-sonnet-4-6'),
-      system: `Eres un experto en desarrollo personal y recursos humanos. Tu tarea es analizar las grabaciones de reflexiones diarias de un usuario y generar un reporte completo sobre su estado general, crecimiento y areas de mejora.
+      system: `Eres un experto en desarrollo personal. Genera descripciones MUY BREVES de personas basadas en sus reflexiones. Maximo 3-4 oraciones.`,
+      prompt: `Genera una descripcion MUY BREVE (3-4 oraciones maximo) del usuario "${userId}" basada en ${recordings.length} grabaciones.
 
-El reporte debe ser profesional pero cercano, enfocado en el desarrollo personal del usuario.`,
-      prompt: `Genera un reporte del estado general del usuario "${userId}" basado en sus ${recordings.length} grabaciones.
+Datos: Sentimiento predominante: ${sentimentCount.positive > sentimentCount.negative ? 'positivo' : sentimentCount.negative > sentimentCount.positive ? 'negativo' : 'neutral'}. Habilidades: ${Object.keys(skillsCount).slice(0, 3).join(', ') || 'ninguna detectada'}.
 
-ESTADISTICAS:
-- Total de grabaciones: ${recordings.length}
-- Sentimiento positivo: ${sentimentCount.positive} veces
-- Sentimiento neutral: ${sentimentCount.neutral} veces
-- Sentimiento negativo: ${sentimentCount.negative} veces
-- Habilidades detectadas: ${Object.entries(skillsCount).map(([k, v]) => `${k}: ${v} veces`).join(', ')}
+Transcripciones recientes:
+${transcriptionsSummary.substring(0, 1000)}
 
-TRANSCRIPCIONES:
-${transcriptionsSummary}
-
-Por favor genera un reporte que incluya:
-1. RESUMEN GENERAL: Un parrafo describiendo el estado general del usuario
-2. FORTALEZAS: Las habilidades y aspectos positivos mas destacados
-3. AREAS DE CRECIMIENTO: Donde el usuario ha mostrado mejora con el tiempo
-4. AREAS DE MEJORA: Aspectos que podrian trabajarse
-5. RECOMENDACIONES: Sugerencias concretas para el desarrollo personal
-
-Responde en espanol, de forma profesional pero empatica.`
+Responde en espanol con UNA descripcion breve que incluya: quien es esta persona, su principal fortaleza, y un area de mejora. SIN titulos ni secciones, solo texto corrido.`
     })
 
     // Save or update report in database
@@ -129,7 +115,7 @@ Responde en espanol, de forma profesional pero empatica.`
         onConflict: 'user_identifier'
       })
 
-    // Silently ignore if table doesn't exist - report still works without persistence
+    
 
     return NextResponse.json({
       userId,
