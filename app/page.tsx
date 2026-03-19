@@ -29,7 +29,7 @@ export default function BackofficePage() {
                     alt="Humand"
                     width={80}
                     height={24}
-                    className="h-6 w-auto"
+                    style={{ width: 'auto', height: '24px' }}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
