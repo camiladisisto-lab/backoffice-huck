@@ -6,8 +6,11 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
   
   const searchParams = request.nextUrl.searchParams
-  const status = searchParams.get('status')
   const search = searchParams.get('search')
+  const userId = searchParams.get('userId')
+  const skills = searchParams.getAll('skills')
+  const sortBySentiment = searchParams.get('sortBySentiment')
+  const sortByDate = searchParams.get('sortByDate')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '10')
   const offset = (page - 1) * limit
@@ -15,30 +18,51 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('recordings')
     .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
 
-  if (status && status !== 'all') {
-    query = query.eq('status', status)
+  // Apply sorting
+  if (sortBySentiment) {
+    query = query.order('sentiment', { ascending: sortBySentiment === 'asc' })
   }
+  if (sortByDate) {
+    query = query.order('created_at', { ascending: sortByDate === 'asc' })
+  } else if (!sortBySentiment) {
+    query = query.order('created_at', { ascending: false })
+  }
+  
+  query = query.range(offset, offset + limit - 1)
 
   if (search) {
     query = query.or(`user_identifier.ilike.%${search}%,transcription.ilike.%${search}%`)
   }
 
+  if (userId) {
+    query = query.eq('user_identifier', userId)
+  }
+
+  // Filter by skills (OR logic) - fetch all then filter client-side for OR
   const { data, error, count } = await query
+  
+  let filteredData = data
+  if (skills && skills.length > 0 && data) {
+    filteredData = data.filter(recording => 
+      recording.soft_skills && 
+      skills.some(skill => recording.soft_skills.includes(skill))
+    )
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  const total = skills && skills.length > 0 ? filteredData?.length || 0 : count || 0
+
   return NextResponse.json({
-    data,
+    data: filteredData,
     pagination: {
       page,
       limit,
-      total: count || 0,
-      totalPages: Math.ceil((count || 0) / limit)
+      total,
+      totalPages: Math.ceil(total / limit)
     }
   })
 }

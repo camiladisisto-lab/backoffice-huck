@@ -16,17 +16,27 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
 export function useRecordings(params: {
   page?: number
   limit?: number
-  status?: string
   search?: string
+  userId?: string
+  skills?: string[]
+  sortBySentiment?: 'asc' | 'desc' | null
+  sortByDate?: 'asc' | 'desc' | null
 }) {
-  const { page = 1, limit = 10, status = 'all', search = '' } = params
+  const { page = 1, limit = 10, search = '', userId, skills, sortBySentiment, sortByDate } = params
   
   const searchParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
-    ...(status !== 'all' && { status }),
-    ...(search && { search })
+    ...(search && { search }),
+    ...(userId && { userId }),
+    ...(sortBySentiment && { sortBySentiment }),
+    ...(sortByDate && { sortByDate })
   })
+  
+  // Add multiple skills
+  if (skills && skills.length > 0) {
+    skills.forEach(skill => searchParams.append('skills', skill))
+  }
 
   const { data, error, isLoading, mutate } = useSWR<RecordingsResponse>(
     `/api/recordings?${searchParams.toString()}`,

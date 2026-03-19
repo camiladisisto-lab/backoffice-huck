@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-
-import { Flame, Trophy, Clock, MessageSquare } from 'lucide-react'
+import Link from 'next/link'
+import { Flame, Trophy, Clock, MessageSquare, ChevronRight } from 'lucide-react'
 
 const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
   positive: { emoji: '😊', label: 'Positivo' },
@@ -57,12 +57,12 @@ function UserStatsRow({ user }: { user: UserWithStats }) {
   const sentiment = sentimentEmojis[user.latest_sentiment] || sentimentEmojis.neutral
 
   return (
-    <TableRow>
+    <TableRow className="cursor-pointer hover:bg-muted/50 transition-colors">
       <TableCell>
-        <div className="flex items-center gap-2">
+        <Link href={`/usuario/${encodeURIComponent(user.user_identifier)}`} className="flex items-center gap-2">
           <span className="text-2xl" title={sentiment.label}>{sentiment.emoji}</span>
-          <span className="font-medium">{user.user_identifier}</span>
-        </div>
+          <span className="font-medium text-primary hover:underline">{user.user_identifier}</span>
+        </Link>
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
@@ -89,6 +89,11 @@ function UserStatsRow({ user }: { user: UserWithStats }) {
           <MessageSquare className="h-4 w-4 text-emerald-500" />
           <span>{user.total_recordings}</span>
         </div>
+      </TableCell>
+      <TableCell>
+        <Link href={`/usuario/${encodeURIComponent(user.user_identifier)}`}>
+          <ChevronRight className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+        </Link>
       </TableCell>
     </TableRow>
   )
@@ -151,18 +156,19 @@ export function UsersStatsTable() {
                 <TableHead>Record</TableHead>
                 <TableHead>Duracion Promedio</TableHead>
                 <TableHead>Total Audios</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     Cargando estadisticas...
                   </TableCell>
                 </TableRow>
               ) : users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No hay usuarios registrados
                   </TableCell>
                 </TableRow>
