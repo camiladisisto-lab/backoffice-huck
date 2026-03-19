@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Flame, Trophy, Clock, MessageSquare } from 'lucide-react'
 
 const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
@@ -40,14 +40,14 @@ function StatCard({
   className?: string
 }) {
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg bg-muted/50 ${className}`}>
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background">
-        <Icon className="h-5 w-5 text-muted-foreground" />
+    <div className={`flex items-center gap-4 p-4 rounded-xl bg-secondary/30 border border-border/50 ${className}`}>
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+        <Icon className="h-5 w-5 text-primary" />
       </div>
       <div>
-        <p className="text-2xl font-semibold">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        {subvalue && <p className="text-xs text-muted-foreground">{subvalue}</p>}
+        <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+        {subvalue && <p className="text-xs text-muted-foreground mt-0.5">{subvalue}</p>}
       </div>
     </div>
   )
@@ -108,57 +108,41 @@ export function UsersStatsTable() {
   const activeUsers = users.filter(u => u.current_streak > 0).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Resumen de estadisticas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <StatCard 
-              icon={MessageSquare} 
-              label="Total Grabaciones" 
-              value={totalRecordings}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <StatCard 
-              icon={Clock} 
-              label="Duracion Promedio" 
-              value={formatDuration(avgDuration)}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <StatCard 
-              icon={Trophy} 
-              label="Record Maximo" 
-              value={`${maxStreak} dias`}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <StatCard 
-              icon={Flame} 
-              label="Usuarios Activos" 
-              value={activeUsers}
-              subvalue={`de ${users.length} usuarios`}
-            />
-          </CardContent>
-        </Card>
+        <StatCard 
+          icon={MessageSquare} 
+          label="Total Grabaciones" 
+          value={totalRecordings}
+        />
+        <StatCard 
+          icon={Clock} 
+          label="Duracion Promedio" 
+          value={formatDuration(avgDuration)}
+        />
+        <StatCard 
+          icon={Trophy} 
+          label="Record Maximo" 
+          value={`${maxStreak} dias`}
+        />
+        <StatCard 
+          icon={Flame} 
+          label="Usuarios Activos" 
+          value={activeUsers}
+          subvalue={`de ${users.length} usuarios`}
+        />
       </div>
 
       {/* Tabla de usuarios */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Estadisticas por Usuario</CardTitle>
-          <CardDescription>
+      <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur">
+        <div className="px-6 py-5 border-b border-border/50">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Estadisticas por Usuario</h2>
+          <p className="text-sm text-muted-foreground mt-1">
             Racha actual, record historico, duracion promedio y sentimiento de cada usuario
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <Table>
             <TableHeader>
               <TableRow>
@@ -189,8 +173,8 @@ export function UsersStatsTable() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

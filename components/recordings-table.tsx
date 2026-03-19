@@ -37,9 +37,9 @@ import {
 import { MoreHorizontal, Search, ChevronLeft, ChevronRight, Eye, CheckCircle, Archive, Trash2 } from 'lucide-react'
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  reviewed: 'bg-emerald-100 text-emerald-800',
-  archived: 'bg-slate-100 text-slate-800'
+  pending: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  reviewed: 'bg-primary/20 text-primary border-primary/30',
+  archived: 'bg-muted text-muted-foreground border-border'
 }
 
 const statusLabels: Record<string, string> = {
@@ -55,14 +55,14 @@ const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
 }
 
 const softSkillLabels: Record<string, { label: string; color: string }> = {
-  comunicacion_efectiva: { label: 'Comunicacion Efectiva', color: 'bg-blue-100 text-blue-800' },
-  escucha_activa: { label: 'Escucha Activa', color: 'bg-purple-100 text-purple-800' },
-  trabajo_en_equipo: { label: 'Trabajo en Equipo', color: 'bg-green-100 text-green-800' },
-  empatia: { label: 'Empatia', color: 'bg-pink-100 text-pink-800' },
-  adaptabilidad: { label: 'Adaptabilidad', color: 'bg-orange-100 text-orange-800' },
-  gestion_del_tiempo: { label: 'Gestion del Tiempo', color: 'bg-cyan-100 text-cyan-800' },
-  responsabilidad: { label: 'Responsabilidad', color: 'bg-indigo-100 text-indigo-800' },
-  pensamiento_critico: { label: 'Pensamiento Critico', color: 'bg-rose-100 text-rose-800' }
+  comunicacion_efectiva: { label: 'Comunicacion Efectiva', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  escucha_activa: { label: 'Escucha Activa', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+  trabajo_en_equipo: { label: 'Trabajo en Equipo', color: 'bg-primary/20 text-primary border-primary/30' },
+  empatia: { label: 'Empatia', color: 'bg-pink-500/20 text-pink-400 border-pink-500/30' },
+  adaptabilidad: { label: 'Adaptabilidad', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+  gestion_del_tiempo: { label: 'Gestion del Tiempo', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+  responsabilidad: { label: 'Responsabilidad', color: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' },
+  pensamiento_critico: { label: 'Pensamiento Critico', color: 'bg-rose-500/20 text-rose-400 border-rose-500/30' }
 }
 
 export function RecordingsTable() {
@@ -148,7 +148,7 @@ export function RecordingsTable() {
         </Select>
       </div>
 
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur">
         <Table>
           <TableHeader>
             <TableRow>
@@ -218,7 +218,7 @@ export function RecordingsTable() {
                     {formatDuration(recording.duration_seconds)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={statusColors[recording.status]}>
+                    <Badge variant="outline" className={statusColors[recording.status]}>
                       {statusLabels[recording.status]}
                     </Badge>
                   </TableCell>
@@ -320,7 +320,7 @@ export function RecordingsTable() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Estado</p>
-                  <Badge variant="secondary" className={`mt-1 ${statusColors[selectedRecording.status]}`}>
+                  <Badge variant="outline" className={`mt-1 ${statusColors[selectedRecording.status]}`}>
                     {statusLabels[selectedRecording.status]}
                   </Badge>
                 </div>
