@@ -13,24 +13,33 @@ export async function GET(
   const { userId } = await params
   const supabase = await createClient()
 
-  // Check if report exists
-  const { data: existingReport, error: fetchError } = await supabase
-    .from('user_reports')
-    .select('*')
-    .eq('user_identifier', userId)
-    .single()
+  try {
+    // Check if report exists
+    const { data: existingReport, error: fetchError } = await supabase
+      .from('user_reports')
+      .select('*')
+      .eq('user_identifier', userId)
+      .single()
 
-  if (existingReport) {
-    return NextResponse.json({
-      userId,
-      report: existingReport.report,
-      skillsCount: existingReport.skills_count,
-      sentimentCount: existingReport.sentiment_count,
-      totalRecordings: existingReport.total_recordings,
-      createdAt: existingReport.created_at,
-      updatedAt: existingReport.updated_at,
-      cached: true
-    })
+    // Table might not exist yet - that's ok
+    if (fetchError && fetchError.code === 'PGRST205') {
+      return NextResponse.json({ userId, report: null, cached: false, tableNotExists: true })
+    }
+
+    if (existingReport) {
+      return NextResponse.json({
+        userId,
+        report: existingReport.report,
+        skillsCount: existingReport.skills_count,
+        sentimentCount: existingReport.sentiment_count,
+        totalRecordings: existingReport.total_recordings,
+        createdAt: existingReport.created_at,
+        updatedAt: existingReport.updated_at,
+        cached: true
+      })
+    }
+  } catch (e) {
+    // Ignore errors - table might not exist
   }
 
   // No report exists
@@ -120,9 +129,7 @@ Responde en espanol, de forma profesional pero empatica.`
         onConflict: 'user_identifier'
       })
 
-    if (upsertError) {
-      console.error('[v0] Error saving report:', upsertError)
-    }
+    // Silently ignore if table doesn't exist - report still works without persistence
 
     return NextResponse.json({
       userId,
