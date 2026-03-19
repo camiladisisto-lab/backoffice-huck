@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function POST() {
+async function checkTable() {
   const supabase = await createClient()
   
   // Create user_reports table using raw SQL via rpc or direct query
@@ -40,4 +40,12 @@ export async function POST() {
   }
 
   return NextResponse.json({ success: true, message: 'Tabla creada exitosamente' })
+}
+
+export async function GET() {
+  return checkTable()
+}
+
+export async function POST() {
+  return checkTable()
 }
