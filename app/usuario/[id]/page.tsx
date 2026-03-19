@@ -241,10 +241,7 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
           </div>
         )}
 
-        {/* Soft Skills Radar Chart */}
-        <SoftSkillsRadar />
-
-        {/* AI Report Section */}
+        {/* AI Report Section - Resumen del Perfil */}
         <div className="rounded-2xl bg-white border border-border shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-border flex items-center justify-between">
             <div>
@@ -300,6 +297,9 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
             )}
           </div>
         </div>
+
+        {/* Soft Skills Radar Chart */}
+        <SoftSkillsRadar userId={userId} />
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3">
