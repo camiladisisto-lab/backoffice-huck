@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
       source: 'backoffice-huck'
     }
 
+    console.log('[v0] Sending notification to:', targetUrl)
+    console.log('[v0] Payload:', JSON.stringify(payload, null, 2))
+
     const response = await fetch(targetUrl, {
       method: 'POST',
       headers: {
