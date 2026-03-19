@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { RecordingsTable } from '@/components/recordings-table'
 import { UsersStatsTable } from '@/components/users-stats-table'
-import { Mic, Users, FileAudio } from 'lucide-react'
-import Image from 'next/image'
+import { TalentGrowthTable } from '@/components/talent-growth-table'
+import { Mic, Users, FileAudio, TrendingUp } from 'lucide-react'
 
 export default function BackofficePage() {
-  const [activeTab, setActiveTab] = useState<'recordings' | 'users'>('users')
+  const [activeTab, setActiveTab] = useState<'recordings' | 'users' | 'talent'>('users')
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,12 +24,11 @@ export default function BackofficePage() {
                   <h1 className="text-lg font-semibold tracking-tight text-foreground">
                     Backoffice
                   </h1>
-                  <Image
+                  <img
                     src="/humand-logo.png"
                     alt="Humand"
-                    width={80}
-                    height={24}
-                    className="h-6 w-auto"
+                    className="h-6"
+                    style={{ width: 'auto', height: 'auto', maxHeight: '24px' }}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -66,14 +65,23 @@ export default function BackofficePage() {
             <FileAudio className="h-4 w-4" />
             Grabaciones
           </button>
+          <button
+            onClick={() => setActiveTab('talent')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              activeTab === 'talent'
+                ? 'bg-primary text-white'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            <TrendingUp className="h-4 w-4" />
+            Talento en Crecimiento
+          </button>
         </div>
 
         {/* Contenido del tab */}
-        {activeTab === 'users' ? (
-          <UsersStatsTable />
-        ) : (
-          <RecordingsTable />
-        )}
+        {activeTab === 'users' && <UsersStatsTable />}
+        {activeTab === 'recordings' && <RecordingsTable />}
+        {activeTab === 'talent' && <TalentGrowthTable />}
       </div>
     </div>
   )

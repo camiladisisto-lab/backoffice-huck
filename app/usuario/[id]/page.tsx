@@ -25,8 +25,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+
+import { SoftSkillsRadar } from '@/components/soft-skills-radar'
 
 const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
   positive: { emoji: '😊', label: 'Positivo' },
@@ -54,11 +54,8 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
   const [letter, setLetter] = useState<string | null>(null)
   const [isLoadingLetter, setIsLoadingLetter] = useState(false)
   const [showLetterDialog, setShowLetterDialog] = useState(false)
-  const [showNotifyDialog, setShowNotifyDialog] = useState(false)
-  const [notifyUrl, setNotifyUrl] = useState('https://humand-ascend-mvp-nu.vercel.app/api/webhook')
+  const [notifyUrl] = useState('https://humand-ascend-mvp-nu.vercel.app/api/webhook')
   const [isNotifying, setIsNotifying] = useState(false)
-  const [notifyResult, setNotifyResult] = useState<{ success: boolean; message: string } | null>(null)
-  const [lastQuestion, setLastQuestion] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
   const sentiment = user ? (sentimentEmojis[user.latest_sentiment] || sentimentEmojis.neutral) : sentimentEmojis.neutral
@@ -132,8 +129,6 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
 
   const sendNotification = async () => {
     setIsNotifying(true)
-    setNotifyResult(null)
-    setLastQuestion(null)
     try {
       const response = await fetch('/api/notify', {
         method: 'POST',
@@ -143,23 +138,11 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
         })
       })
       const data = await response.json()
-      if (data.success) {
-        setLastQuestion(data.question)
-        setNotifyResult({
-          success: true,
-          message: 'Pregunta enviada exitosamente'
-        })
-      } else {
-        setNotifyResult({
-          success: false,
-          message: data.error || 'Error enviando notificacion'
-        })
+      if (!data.success) {
+        console.error('Error enviando notificacion:', data.error)
       }
     } catch (error) {
-      setNotifyResult({
-        success: false,
-        message: 'Error enviando notificacion'
-      })
+      console.error('Error enviando notificacion:', error)
     } finally {
       setIsNotifying(false)
     }
@@ -240,7 +223,7 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
           </div>
         )}
 
-        {/* AI Report Section */}
+        {/* AI Report Section - Resumen del Perfil */}
         <div className="rounded-2xl bg-white border border-border shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-border flex items-center justify-between">
             <div>
@@ -297,6 +280,9 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
           </div>
         </div>
 
+        {/* Soft Skills Radar Chart */}
+        <SoftSkillsRadar userId={userId} />
+
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3">
           <Button 
@@ -308,12 +294,13 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
             Generar Carta de Recomendacion
           </Button>
           <Button 
-            onClick={() => setShowNotifyDialog(true)} 
+            onClick={sendNotification} 
+            disabled={isNotifying}
             variant="outline"
             className="gap-2"
           >
-            <Send className="h-4 w-4" />
-            Enviar Notificacion
+            {isNotifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {isNotifying ? 'Enviando...' : 'Enviar Notificacion'}
           </Button>
         </div>
 
@@ -352,57 +339,7 @@ export default function UserPage({ params }: { params: Promise<{ id: string }> }
         </DialogContent>
       </Dialog>
 
-      {/* Notify Dialog */}
-      <Dialog open={showNotifyDialog} onOpenChange={(open) => {
-        setShowNotifyDialog(open)
-        if (!open) {
-          setNotifyResult(null)
-          setLastQuestion(null)
-        }
-      }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enviar Pregunta de Reflexion</DialogTitle>
-            <DialogDescription>
-              Envia una pregunta aleatoria a la otra aplicacion via webhook
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="notifyUrl">URL de destino (webhook)</Label>
-              <Input
-                id="notifyUrl"
-                value={notifyUrl}
-                onChange={(e) => setNotifyUrl(e.target.value)}
-                placeholder="https://otra-app.vercel.app/api/webhook"
-              />
-            </div>
-            {lastQuestion && (
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium mb-1">Pregunta enviada:</p>
-                <p className="text-sm text-blue-900">{lastQuestion}</p>
-              </div>
-            )}
-            {notifyResult && (
-              <div className={`p-3 rounded-lg text-sm ${
-                notifyResult.success 
-                  ? 'bg-green-100 text-green-800 border border-green-200' 
-                  : 'bg-red-100 text-red-800 border border-red-200'
-              }`}>
-                {notifyResult.message}
-              </div>
-            )}
-            <Button 
-              onClick={sendNotification} 
-              disabled={isNotifying || !notifyUrl}
-              className="w-full gap-2"
-            >
-              {isNotifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Enviar Pregunta Aleatoria
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      
     </div>
   )
 }

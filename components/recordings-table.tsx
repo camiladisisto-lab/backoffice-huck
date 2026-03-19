@@ -20,12 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+
 import {
   Dialog,
   DialogContent,
@@ -33,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { MoreHorizontal, Search, ChevronLeft, ChevronRight, Eye, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Filter } from 'lucide-react'
 
 const sentimentEmojis: Record<string, { emoji: string; label: string }> = {
   positive: { emoji: '😊', label: 'Positivo' },
@@ -195,9 +190,7 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                   {sortBySentiment === 'desc' && <ArrowDown className="h-4 w-4 text-primary" />}
                 </button>
               </TableHead>
-              <TableHead>Usuario</TableHead>
-              <TableHead className="hidden md:table-cell">Transcripcion</TableHead>
-              <TableHead className="hidden lg:table-cell">Habilidades</TableHead>
+              <TableHead>Habilidades</TableHead>
               <TableHead className="hidden sm:table-cell">Duracion</TableHead>
               <TableHead className="hidden lg:table-cell">
                 <button
@@ -221,19 +214,23 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   Cargando grabaciones...
                 </TableCell>
               </TableRow>
             ) : recordings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No se encontraron grabaciones
                 </TableCell>
               </TableRow>
             ) : (
               recordings.map((recording) => (
-                <TableRow key={recording.id}>
+                <TableRow 
+                  key={recording.id} 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => setSelectedRecording(recording)}
+                >
                   <TableCell>
                     <span 
                       className="text-2xl" 
@@ -242,31 +239,24 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                       {sentimentEmojis[recording.sentiment || 'neutral']?.emoji || '😐'}
                     </span>
                   </TableCell>
-                  <TableCell className="font-medium">{recording.user_identifier}</TableCell>
-                  <TableCell className="hidden md:table-cell max-w-xs">
-                    <span className="text-muted-foreground">
-                      {truncateText(recording.transcription, 50)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    <div className="flex flex-wrap gap-1 max-w-[200px]">
+                  <TableCell>
+                    <div className="flex items-center gap-1">
                       {recording.soft_skills && recording.soft_skills.length > 0 ? (
-                        recording.soft_skills.slice(0, 2).map((skill) => (
+                        <>
                           <Badge 
-                            key={skill} 
                             variant="secondary" 
-                            className={`text-xs ${softSkillLabels[skill]?.color || 'bg-gray-100 text-gray-800'}`}
+                            className={`text-xs ${softSkillLabels[recording.soft_skills[0]]?.color || 'bg-gray-100 text-gray-800'}`}
                           >
-                            {softSkillLabels[skill]?.label?.split(' ')[0] || skill}
+                            {softSkillLabels[recording.soft_skills[0]]?.label?.split(' ')[0] || recording.soft_skills[0]}
                           </Badge>
-                        ))
+                          {recording.soft_skills.length > 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{recording.soft_skills.length - 1}
+                            </Badge>
+                          )}
+                        </>
                       ) : (
                         <span className="text-xs text-muted-foreground">-</span>
-                      )}
-                      {recording.soft_skills && recording.soft_skills.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{recording.soft_skills.length - 2}
-                        </Badge>
                       )}
                     </div>
                   </TableCell>
@@ -277,27 +267,18 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                     {formatDate(recording.created_at)}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Abrir menú</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setSelectedRecording(recording)}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver detalles
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleDelete(recording.id)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDelete(recording.id)
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Eliminar</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -349,14 +330,10 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Usuario</p>
-                  <p className="mt-1">{selectedRecording.user_identifier}</p>
-                </div>
-                <div>
                   <p className="text-sm font-medium text-muted-foreground">Sentimiento</p>
                   <p className="mt-1 flex items-center gap-2">
                     <span className="text-2xl">
-                      {sentimentEmojis[selectedRecording.sentiment || 'neutral']?.emoji || '😐'}
+                      {sentimentEmojis[selectedRecording.sentiment || 'neutral']?.emoji || ''}
                     </span>
                     <span>{sentimentEmojis[selectedRecording.sentiment || 'neutral']?.label || 'Neutral'}</span>
                   </p>
@@ -370,12 +347,8 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                   <p className="mt-1">{selectedRecording.language?.toUpperCase()}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Creado</p>
+                  <p className="text-sm font-medium text-muted-foreground">Fecha</p>
                   <p className="mt-1">{formatDate(selectedRecording.created_at)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Actualizado</p>
-                  <p className="mt-1">{formatDate(selectedRecording.updated_at)}</p>
                 </div>
               </div>
               <div>
@@ -397,12 +370,16 @@ export function RecordingsTable({ userId }: { userId?: string } = {}) {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Transcripcion</p>
-                <div className="rounded-lg bg-muted p-4 max-h-64 overflow-y-auto">
-                  <p className="whitespace-pre-wrap">{selectedRecording.transcription}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Analisis</p>
+                <div className="rounded-lg bg-muted p-4">
+                  <p className="text-sm">
+                    {selectedRecording.soft_skills && selectedRecording.soft_skills.length > 0 
+                      ? `Esta grabacion muestra ${selectedRecording.soft_skills.length} habilidad${selectedRecording.soft_skills.length > 1 ? 'es' : ''} blanda${selectedRecording.soft_skills.length > 1 ? 's' : ''} detectada${selectedRecording.soft_skills.length > 1 ? 's' : ''}, con un sentimiento ${sentimentEmojis[selectedRecording.sentiment || 'neutral']?.label?.toLowerCase() || 'neutral'}. ${selectedRecording.sentiment === 'positive' ? 'El usuario demuestra una actitud constructiva en su comunicacion.' : selectedRecording.sentiment === 'negative' ? 'Se recomienda dar seguimiento al estado emocional del usuario.' : 'El tono general es equilibrado y objetivo.'}`
+                      : `No se detectaron habilidades blandas especificas en esta grabacion. El sentimiento general es ${sentimentEmojis[selectedRecording.sentiment || 'neutral']?.label?.toLowerCase() || 'neutral'}.`
+                    }
+                  </p>
                 </div>
               </div>
-              
             </div>
           )}
         </DialogContent>

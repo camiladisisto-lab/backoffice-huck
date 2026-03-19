@@ -60,7 +60,6 @@ function UserStatsRow({ user }: { user: UserWithStats }) {
     <TableRow className="cursor-pointer hover:bg-muted/50 transition-colors">
       <TableCell>
         <Link href={`/usuario/${encodeURIComponent(user.user_identifier)}`} className="flex items-center gap-2">
-          <span className="text-2xl" title={sentiment.label}>{sentiment.emoji}</span>
           <span className="font-medium text-primary hover:underline">{user.user_identifier}</span>
         </Link>
       </TableCell>
@@ -89,6 +88,12 @@ function UserStatsRow({ user }: { user: UserWithStats }) {
           <MessageSquare className="h-4 w-4 text-emerald-500" />
           <span>{user.total_recordings}</span>
         </div>
+      </TableCell>
+      <TableCell>
+        <span className="text-2xl" title={sentiment.label}>{sentiment.emoji}</span>
+      </TableCell>
+      <TableCell>
+        <span className="font-semibold text-emerald-600">+3</span>
       </TableCell>
       <TableCell>
         <Link href={`/usuario/${encodeURIComponent(user.user_identifier)}`}>
@@ -144,7 +149,7 @@ export function UsersStatsTable() {
         <div className="px-6 py-5 border-b border-border">
           <h2 className="text-lg font-semibold tracking-tight text-foreground">Estadisticas por Usuario</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Racha actual, record historico, duracion promedio y sentimiento de cada usuario
+            Racha actual, record historico, duracion promedio e impresion grabacion
           </p>
         </div>
         <div className="p-6">
@@ -155,20 +160,22 @@ export function UsersStatsTable() {
                 <TableHead>Racha Actual</TableHead>
                 <TableHead>Record</TableHead>
                 <TableHead>Duracion Promedio</TableHead>
-                <TableHead>Total Audios</TableHead>
+                <TableHead>Total Sesiones</TableHead>
+                <TableHead>Impresion Grabacion</TableHead>
+                <TableHead>Habilidades Blandas</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     Cargando estadisticas...
                   </TableCell>
                 </TableRow>
               ) : users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No hay usuarios registrados
                   </TableCell>
                 </TableRow>
